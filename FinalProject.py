@@ -13,11 +13,11 @@ def home():
     nav_text=Label(root,text='Home',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
     nav_text.place(relx=0.01,rely=0.005)
     #slideshow
-    img1=ImageTk.PhotoImage(Image.open("/home/zaidqam/Desktop/final_project_sqlite/tasveer/campus4.jpeg").resize((1365,490)))
-    img2=ImageTk.PhotoImage(Image.open("/home/zaidqam/Desktop/final_project_sqlite/tasveer/student-life.jpg").resize((1365,490)))
-    img3=ImageTk.PhotoImage(Image.open("/home/zaidqam/Desktop/final_project_sqlite/tasveer/campus12.jpeg").resize((1365,490)))
-    img4=ImageTk.PhotoImage(Image.open("/home/zaidqam/Desktop/final_project_sqlite/tasveer/Campus-1.jpg").resize((1365,490)))
-    img5=ImageTk.PhotoImage(Image.open("/home/zaidqam/Desktop/final_project_sqlite/tasveer/student.jpeg").resize((1365,490)))
+    img1=ImageTk.PhotoImage(Image.open("tasveer/campus4.jpeg").resize((1365,490)))
+    img2=ImageTk.PhotoImage(Image.open("tasveer/student-life.jpg").resize((1365,490)))
+    img3=ImageTk.PhotoImage(Image.open("tasveer/campus12.jpeg").resize((1365,490)))
+    img4=ImageTk.PhotoImage(Image.open("tasveer/Campus-1.jpg").resize((1365,490)))
+    img5=ImageTk.PhotoImage(Image.open("tasveer/student.jpeg").resize((1365,490)))
     
     #label for slide
     l=Label()
@@ -224,7 +224,7 @@ def student_func():
                 conn.close()
 
 
-                face_classifer=cv2.CascadeClassifier('/home/zaidqam/Desktop/final_project_sqlite/haarcascade_frontalface_default.xml')
+                face_classifer=cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
                 
                 def face_cropped(img):
                     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -500,13 +500,64 @@ def student_func():
     fetch_data()
 
 def face_func():
+    def draw_boundary(img,face_classifier,scaleFactor, minNeighbors,color,text,lbph):
+        gray_image=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        features=face_classifier.detectMultiScale(gray_image,scaleFactor,minNeighbors)
+        coord=[]
+        for (x,y,w,h) in features:
+            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3)
+            id,predict=lbph.predict(gray_image[y:y+h,x:x+w])
+            confidence=int(100*(1-predict/300))
 
-    nav_text=Label(root,text='Face Detector',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
-    nav_text.place(relx=0.01,rely=0.005)
-    mainframe=Frame( root,bd=4,bg='#636466',relief=SUNKEN,borderwidth=3)
-    mainframe.place(relx=0.0,rely=0.308,width=1365,height=485)
-    lbl=Label(mainframe,text='Work In Progress....')
-    lbl.place(relx=0.5,rely=0.5)
+            conn=sqlite3.connect('Student_DB.db')
+            db_cursor=conn.cursor()
+
+            db_cursor.execute('SELECT Student_Name from student WHERE StudentID='+str(id))
+            n=db_cursor.fetchone()
+            n='+'.join(n)
+
+            db_cursor.execute('SELECT Rollno from student WHERE StudentID='+str(id))
+            r=db_cursor.fetchone()
+            r='+'.join(r)
+
+            db_cursor.execute('SELECT Department from student WHERE StudentID='+str(id))
+            d=db_cursor.fetchone()
+            d='+'.join(d)
+
+
+            if confidence >77:
+                cv2.putText(img,f"Roll:{r}",(x,y-55),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+                cv2.putText(img,f"Name:{n}",(x,y-30),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+                cv2.putText(img,f"Department:{d}",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+            else:
+                cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),3)
+                cv2.putText(img,"Unknown Face",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+
+            coord=[x,y,w,h]
+        return coord
+
+    def recognize(img,lbph,face_classifer):
+        coord=draw_boundary(img,face_classifer,1.1,10,(255,255,255),'Face',lbph)
+        return img
+    
+    face_classifier=cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    lbph=cv2.face.LBPHFaceRecognizer_create()
+    lbph.read('classifier.xml')
+
+    video_cap=cv2.VideoCapture(0)
+    while True:
+        ret,img=video_cap.read()
+        img=recognize(img,lbph,face_classifier)
+        cv2.imshow('Welcome to Face Recognition',img)
+
+        if cv2.waitKey(1)==13:
+            break
+        video_cap.release()
+        cv2.destroyAllWindows() 
+
+    
+
+
 
 def atten_func():
     nav_text=Label(root,text='Attendance',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
@@ -517,13 +568,7 @@ def atten_func():
     lbl.place(relx=0.5,rely=0.5)
 
 def train_func():
-    # nav_text=Label(root,text='Train Data',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
-    # nav_text.place(relx=0.01,rely=0.005)
-    # mainframe=Frame( root,bd=4,bg='#636466',relief=SUNKEN,borderwidth=3)
-    # mainframe.place(relx=0.0,rely=0.308,width=1365,height=485)
-    # lbl=Label(mainframe,text='Work In Progress....')
-    # lbl.place(relx=0.5,rely=0.5)
-    data_dir=('/home/zaidqam/Desktop/final_project_sqlite/data')
+    data_dir=('data')
     path=[os.path.join(data_dir,file) for file in os.listdir(data_dir)]
 
     faces=[]
@@ -536,18 +581,22 @@ def train_func():
         faces.append(imageNp)
         ids.append(id)
         cv2.imshow('Training',imageNp)
-        cv2.waitkey(1)==13
-    ids=np.arange(ids)
+        cv2.waitKey(1)==13
+    ids=np.array(ids)
+
 
     #classifier
     lbph=cv2.face.LBPHFaceRecognizer_create()
+    lbph.train(faces,ids)
+    lbph.write('classifier.xml')
+    cv2.destroyAllWindows()
+    messagebox.showinfo('Result','Trainning Datasets Completed!!!')
+
         
 def photo_func():
-    os.system(r'xdg-open /home/zaidqam/Desktop/final_project_sqlite/data')
+    os.system(r'xdg-open  data')
 
 def nav(root):
-    
-
     #navigation
     nav=Label( root,bg='#636466',width=1530,height=2)
     nav.place(relx=0,rely=0)
@@ -579,8 +628,8 @@ def nav(root):
 
     sd_but=Button( redline,text='Student Details',command=student_func,font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2,bd=3)
     sd_but.grid(row=0,column=1,padx=55)
-    # #face detector
-    faced_but=Button( redline,text='Face Detector',font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2,command=face_func,bd=3)
+    # #face Recognizer
+    faced_but=Button( redline,text='Face Recognizer',font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2,command=face_func,bd=3)
     faced_but.grid(row=0,column=3,padx=55)
     # #attendance
     atten_but=Button( redline,text='Attendance',font=('times new roman',14),fg='white',bg='#9f1c33',bd=3,relief=RAISED,cursor='hand2',width=10,borderwidth=2,command=atten_func)
@@ -598,7 +647,7 @@ if __name__=='__main__':
     root.title('Face Recognition System')
     root.configure(bg='white')
     root.resizable(False,False)
-    logo=ImageTk.PhotoImage(Image.open("/home/zaidqam/Desktop/final_project_sqlite/tasveer/Logo.jpg"))
+    logo=ImageTk.PhotoImage(Image.open("tasveer/Logo.jpg"))
     logo_lable=Label( root,image=logo,border=0,borderwidth=0,cursor='hand2')
     logo_lable.place(relx=0.02,rely=0.07,relwidth=0.18,relheight=0.14)
     logo_lable.bind('<Button-1>', lambda x: webbrowser.open_new('https://dypatiluniversitypune.edu.in/school-of-engineering-ambi.php'))
