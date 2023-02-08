@@ -189,6 +189,8 @@ def student_func():
         var_add.set('')
         var_tsp.set('')
 
+        cv2.VideoCapture
+
 #generating data set
     def generate():
         if var_dept.get()=='Select Department' or var_course.get()=='Select Course' or var_year.get()=='Select Year'or var_sem.get()=='Select Semister' or var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='' or var_gender.get()=='Select Gender' or var_dob.get()=='' or var_email.get()=='' or var_mobile.get()==''or var_add.get()==''or var_tsp=='':
@@ -501,59 +503,61 @@ def student_func():
 
 def face_func():
     def draw_boundary(img,face_classifier,scaleFactor, minNeighbors,color,text,lbph):
+        print(img)
         gray_image=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        #cv2.imshow("Priyanka",gray_image)
         features=face_classifier.detectMultiScale(gray_image,scaleFactor,minNeighbors)
         coord=[]
         for (x,y,w,h) in features:
-            cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3)
-            id,predict=lbph.predict(gray_image[y:y+h,x:x+w])
-            confidence=int(100*(1-predict/300))
+                cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3)
+                id,predict=lbph.predict(gray_image[y:y+h,x:x+w])
+                confidence=int(100*(1-predict/300))
 
-            conn=sqlite3.connect('Student_DB.db')
-            db_cursor=conn.cursor()
+                conn=sqlite3.connect('Student_DB.db')
+                db_cursor=conn.cursor()
 
-            db_cursor.execute('SELECT Student_Name from student WHERE StudentID='+str(id))
-            n=db_cursor.fetchone()
-            n='+'.join(n)
+                db_cursor.execute('SELECT Student_Name from student WHERE StudentID='+str(id))
+                n=db_cursor.fetchone()
+                n='+'.join(n)
 
-            db_cursor.execute('SELECT Rollno from student WHERE StudentID='+str(id))
-            r=db_cursor.fetchone()
-            r='+'.join(r)
+                db_cursor.execute('SELECT Rollno from student WHERE StudentID='+str(id))
+                r=db_cursor.fetchone()
+                r='+'.join(r)
 
-            db_cursor.execute('SELECT Department from student WHERE StudentID='+str(id))
-            d=db_cursor.fetchone()
-            d='+'.join(d)
+                db_cursor.execute('SELECT Department from student WHERE StudentID='+str(id))
+                d=db_cursor.fetchone()
+                d='+'.join(d)
 
 
-            if confidence >77:
-                cv2.putText(img,f"Roll:{r}",(x,y-55),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
-                cv2.putText(img,f"Name:{n}",(x,y-30),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
-                cv2.putText(img,f"Department:{d}",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
-            else:
-                cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),3)
-                cv2.putText(img,"Unknown Face",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+                if confidence >77:
+                        cv2.putText(img,f"Roll:{r}",(x,y-55),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+                        cv2.putText(img,f"Name:{n}",(x,y-30),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+                        cv2.putText(img,f"Department:{d}",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+                else:
+                        cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),3)
+                        cv2.putText(img,"Unknown Face",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
 
-            coord=[x,y,w,h]
+                coord=[x,y,w,h]
         return coord
 
     def recognize(img,lbph,face_classifer):
         coord=draw_boundary(img,face_classifer,1.1,10,(255,255,255),'Face',lbph)
         return img
-    
+
     face_classifier=cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
     lbph=cv2.face.LBPHFaceRecognizer_create()
     lbph.read('classifier.xml')
 
     video_cap=cv2.VideoCapture(0)
     while True:
-        ret,img=video_cap.read()
-        img=recognize(img,lbph,face_classifier)
-        cv2.imshow('Welcome to Face Recognition',img)
+            ret,img=video_cap.read()
+            img=recognize(img,lbph,face_classifier)
+            cv2.imshow('Welcome to Face Recognition',img)
 
-        if cv2.waitKey(1)==13:
-            break
-        video_cap.release()
-        cv2.destroyAllWindows() 
+            if cv2.waitKey(1)==13:
+                    break
+    video_cap.release()
+    cv2.destroyAllWindows() 
 
     
 
@@ -594,7 +598,7 @@ def train_func():
 
         
 def photo_func():
-    os.system(r'xdg-open  data')
+    os.startfile('data')
 
 def nav(root):
     #navigation
