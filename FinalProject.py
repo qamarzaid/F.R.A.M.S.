@@ -5,23 +5,26 @@ import webbrowser
 from PIL import Image, ImageTk
 from tkinter import messagebox
 import sqlite3
+from time import strftime 
+from datetime import datetime
 import cv2
 import os
 import numpy as np
-
+import csv
+from tkinter import filedialog
 def home():
     nav_text=Label(root,text='Home',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
     nav_text.place(relx=0.01,rely=0.005)
     #slideshow
-    img1=ImageTk.PhotoImage(Image.open("tasveer/campus4.jpeg").resize((1365,490)))
-    img2=ImageTk.PhotoImage(Image.open("tasveer/student-life.jpg").resize((1365,490)))
-    img3=ImageTk.PhotoImage(Image.open("tasveer/campus12.jpeg").resize((1365,490)))
-    img4=ImageTk.PhotoImage(Image.open("tasveer/Campus-1.jpg").resize((1365,490)))
-    img5=ImageTk.PhotoImage(Image.open("tasveer/student.jpeg").resize((1365,490)))
+    img1=ImageTk.PhotoImage(Image.open("tasveer/campus4.jpeg").resize((1365,480)))
+    img2=ImageTk.PhotoImage(Image.open("tasveer/student-life.jpg").resize((1365,480)))
+    img3=ImageTk.PhotoImage(Image.open("tasveer/campus12.jpeg").resize((1365,480)))
+    img4=ImageTk.PhotoImage(Image.open("tasveer/Campus-1.jpg").resize((1365,480)))
+    img5=ImageTk.PhotoImage(Image.open("tasveer/student.jpeg").resize((1365,480)))
     
     #label for slide
     l=Label()
-    l.place(relx=0,rely=0.304)
+    l.place(relx=0,rely=0.31)
     #funtion for slideshow
     # using recursion to slide to next image
     
@@ -189,7 +192,7 @@ def student_func():
         var_add.set('')
         var_tsp.set('')
 
-        cv2.VideoCapture
+
 
 #generating data set
     def generate():
@@ -502,8 +505,21 @@ def student_func():
     fetch_data()
 
 def face_func():
+    def mark_attandance(i,r,n,d):
+        with open('Attandance.csv','r+',newline='\n') as f:
+            myDataList=f.readlines()
+            name_list=[]
+            for line in myDataList:
+                entry=line.split((','))
+                name_list.append(entry[0])
+            if ((i not in name_list) and (r not in name_list) and (n not in name_list)and (d not in name_list)):
+                now= datetime.now()
+                d1=now.strftime('%d/%m/%Y')
+                dtString=now.strftime('%H:%M:%S')
+                f.writelines(f'\n{i},{r},{n},{d},{dtString},{d1},Present')
+
     def draw_boundary(img,face_classifier,scaleFactor, minNeighbors,color,text,lbph):
-        print(img)
+        # print(img)
         gray_image=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         #cv2.imshow("Priyanka",gray_image)
         features=face_classifier.detectMultiScale(gray_image,scaleFactor,minNeighbors)
@@ -528,11 +544,17 @@ def face_func():
                 d=db_cursor.fetchone()
                 d='+'.join(d)
 
+                db_cursor.execute('SELECT StudentID from student WHERE StudentID='+str(id))
+                i=db_cursor.fetchone()
+                i='+'.join(i)
+
 
                 if confidence >77:
+                        cv2.putText(img,f"Student ID:{i}",(x,y-85),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
                         cv2.putText(img,f"Roll:{r}",(x,y-55),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
                         cv2.putText(img,f"Name:{n}",(x,y-30),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
                         cv2.putText(img,f"Department:{d}",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
+                        mark_attandance(i,r,n,d)
                 else:
                         cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),3)
                         cv2.putText(img,"Unknown Face",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,0.8,(255,255,255),3)
@@ -561,15 +583,250 @@ def face_func():
 
     
 
-
+mydata=[]
 
 def atten_func():
-    nav_text=Label(root,text='Attendance',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
+    #variables
+    var_Adept=StringVar()
+    var_AstdID=StringVar()
+    var_AstdName=StringVar()
+    var_Arollno=StringVar()
+    var_Atime=StringVar()
+    var_Adate=StringVar()
+    var_Astatus=StringVar()
+
+    def fetchData(rows):
+        AttendanceReportTable.delete(* AttendanceReportTable.get_children())
+        for i in rows:
+            AttendanceReportTable.insert("",END,values=i)
+    def cursor_Atten(event):
+        cursor_focus=AttendanceReportTable.focus()
+        content=AttendanceReportTable.item(cursor_focus)
+        data=content['values']
+        
+        var_AstdID.set(data[0]),
+        var_Arollno.set(data[1]),
+        var_AstdName.set(data[2]),
+        var_Adept.set(data[3]),
+        var_Atime.set(data[4]),
+        var_Adate.set(data[5]),
+        var_Astatus.set(data[6]),
+
+
+
+    def import_csv():
+        global mydata
+        fln=filedialog.askopenfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
+        with open(fln) as myfile:
+            csvread=csv.reader(myfile,delimiter=",")
+            for i in csvread:
+                mydata.append(i)
+            fetchData(mydata)
+    
+    def export_csv():
+        try:
+            if len(mydata)<1:
+                messagebox.showerror('No Data',' No Data found to Export!',parent=root)
+                return False
+            fln=filedialog.asksaveasfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
+            with open(fln,mode='w',newline="") as myfile:
+                csvwrite=csv.writer(myfile,delimiter=',')
+                for i in mydata:
+                    csvwrite.writerow(i)
+                messagebox.showinfo('Result','Data Exported to'+os.path.basename(fln)+'Successfully ')
+        except Exception as e:
+                messagebox.showerror('Error',f'Due to {e}')
+
+        
+    # def update_csv():
+    #     pass
+    def reset_csv():
+        var_AstdID.set(''),
+        var_Arollno.set(''),
+        var_AstdName.set(''),
+        var_Adept.set(''),
+        var_Atime.set(''),
+        var_Adate.set(''),
+        var_Astatus.set(''),
+        
+
+
+    #nav tag
+    nav_text=Label(text='Attendance',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
     nav_text.place(relx=0.01,rely=0.005)
-    mainframe=Frame( root,bd=4,bg='#636466',relief=SUNKEN,borderwidth=3)
+
+    #main frame
+    mainframe=Frame(bd=4,bg='#636466',relief=SUNKEN,borderwidth=3)
     mainframe.place(relx=0.0,rely=0.308,width=1365,height=485)
-    lbl=Label(mainframe,text='Work In Progress....')
-    lbl.place(relx=0.5,rely=0.5)
+
+    #left frame
+    left_frame=LabelFrame(mainframe,text='Student Attendance Details',bd=3,fg='#9f1c33',font=('times new roman',15),borderwidth=3,relief=RAISED)
+    left_frame.place(relx=0.005,rely=0.02,width=610,height=465)
+
+    #left upper frame
+    lu_frame=LabelFrame(left_frame,borderwidth=2,font=('times new roman',12),fg='#9f1c33',relief=SUNKEN)
+    lu_frame.place(relx=0.01,rely=0.025 ,width=590,height=160)
+    
+
+    #AttendanceID
+    sutID_lbl=Label(lu_frame,text="AttendanceID : ",font=('times new roman',12))
+    sutID_lbl.grid(row=0,column=0,padx=2.5,pady=7.5,sticky=W)
+
+    sutID_tb=Entry(lu_frame,font=('times new roman',12),width=18,textvariable=var_AstdID)
+    sutID_tb.grid(row=0,column=1,padx=2.5,pady=7.5,sticky=W)
+
+    #student name
+    sutname_lbl=Label(lu_frame,text="Student Name : ",font=('times new roman',12))
+    sutname_lbl.grid(row=0,column=2,padx=2.5,pady=7.5,sticky=E)
+
+    sutname_tb=Entry(lu_frame,font=('times new roman',12),width=18,textvariable=var_AstdName)
+    sutname_tb.grid(row=0,column=3,padx=2.5,pady=7.5,sticky=E)
+
+    #department
+    dep_lbl=Label(lu_frame,text="Department : ",font=('times new roman',12))
+    dep_lbl.grid(row=1,column=0,padx=2.5,pady=7.5,sticky=W)
+
+
+    dep_cb=ttk.Combobox(lu_frame,font=('times new roman',12),width=17,textvariable=var_Adept)
+    dep_cb['values']=('Computer','IT','Civil','Electrical','Mechnical')
+    # dep_cb.current(0)
+    dep_cb.grid(row=1,column=1,padx=2.5,pady=7.5,sticky=W)
+    
+
+    #roll nno.
+    Rollno_lbl=Label(lu_frame,text="Roll no.: ",font=('times new roman',12))
+    Rollno_lbl.grid(row=1,column=2,padx=2.5,pady=7.5,sticky=E)
+
+    Rollno_tb=Entry(lu_frame,font=('times new roman',12),width=18,textvariable=var_Arollno)
+    Rollno_tb.grid(row=1,column=3,padx=2.5,pady=7.5,sticky=E)
+
+    #time
+    time_lbl=Label(lu_frame,text="Time : ",font=('times new roman',12))
+    time_lbl.grid(row=2,column=0,padx=2.5,pady=7.5,sticky=W)
+
+    time_cb=Entry(lu_frame,font=('times new roman',12),width=18,textvariable=var_Atime)
+    time_cb.grid(row=2,column=1,padx=2.5,pady=7.5,sticky=W)
+
+    #date
+    date_lbl=Label(lu_frame,text="Date : ",font=('times new roman',12))
+    date_lbl.grid(row=2,column=2,padx=2.5,pady=7.5,sticky=E)
+
+    date_tb=Entry(lu_frame,font=('times new roman',12),width=18,textvariable=var_Adate)
+    date_tb.grid(row=2,column=3,padx=2.5,pady=7.5,sticky=E)
+
+    #Attandance atatus
+    a_status_lbl=Label(lu_frame,text="Attendance Status : ",font=('times new roman',12))
+    a_status_lbl.grid(row=3,column=0,padx=2.5,pady=7.5,sticky=E)
+
+    a_status_cb=ttk.Combobox(lu_frame,font=('times new roman',12),width=17,textvariable=var_Astatus)
+    a_status_cb['values']=('Present','Absent')
+    a_status_cb.grid(row=3,column=1,padx=2.5,pady=7.5,sticky=E)
+    # a_status_cb.current(0)
+
+
+    #left middle frame
+    lm_frame=Frame(left_frame,borderwidth=2,relief=SUNKEN)
+    lm_frame.place(relx=0.01,rely=0.41,width=590,height=205)
+    #slideshow
+    img1=ImageTk.PhotoImage(Image.open("tasveer/campus4.jpeg").resize((590,205)))
+    img2=ImageTk.PhotoImage(Image.open("tasveer/student-life.jpg").resize((590,205)))
+    img3=ImageTk.PhotoImage(Image.open("tasveer/campus12.jpeg").resize((590,205)))
+    img4=ImageTk.PhotoImage(Image.open("tasveer/Campus-1.jpg").resize((590,205)))
+    img5=ImageTk.PhotoImage(Image.open("tasveer/student.jpeg").resize((590,205)))
+    
+    #label for slide
+    l=Label(lm_frame)
+    l.place(relx=0,rely=0)
+    #funtion for slideshow
+    # using recursion to slide to next image
+    
+
+    # function to change to next image
+    def move():
+        global z
+        if z == 6:
+            z = 1
+        if z == 1:
+            l.config(image=img1)
+        elif z == 2:
+            l.config(image=img2)
+        elif z == 3:
+            l.config(image=img3)
+        elif z == 4:
+            l.config(image=img4)
+        elif z == 5:
+            l.config(image=img5)
+        z = z+1
+        root.after(2000, move)
+
+    # calling the function
+    move()
+
+    #left lower frame
+    ll_frame=Frame(left_frame,borderwidth=2,relief=SUNKEN)
+    ll_frame.place(relx=0.01,rely=0.9,width=590,height=40)
+    # importcsv button
+    importcsv_but=Button(ll_frame,text='Import CSV',font=('times new roman',12),fg='white', bg='#9f1c33',relief=RAISED,cursor='hand2',width=13,borderwidth=5,command=import_csv)
+    importcsv_but.grid(row=0,column=0,padx=2,pady=0)
+    # exportcsv button
+    exportcsv_but=Button(ll_frame,text='Export CSV',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=13,borderwidth=5,command=export_csv)
+    exportcsv_but.grid(row=0,column=1,padx=4,pady=0)
+    # update button
+    Update_but=Button(ll_frame,text='Update',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=13,borderwidth=5)
+    Update_but.grid(row=0,column=2,padx=4,pady=0)
+    # Reset button
+    Reset_but=Button(ll_frame,text='Reset',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=13,borderwidth=5,command=reset_csv)
+    Reset_but.grid(row=0,column=3,padx=4,pady=0)
+
+    #right frame
+    right_frame=LabelFrame(mainframe,text='Student Details',bd=3,fg='#9f1c33',font=('times new roman',15),relief=RAISED,borderwidth=3)
+    right_frame.place(relx=0.46,rely=0.02,width=723,height=465)
+
+    #table frame
+    rl_frame=Frame(right_frame,borderwidth=2,relief=SUNKEN)
+    rl_frame.place(relx=0.01,rely=0.025,width=700,height=420)
+    #x scrol
+    x_scrol=ttk.Scrollbar(rl_frame,orient=HORIZONTAL)
+    x_scrol.pack(side=BOTTOM,fill=X)
+
+    #y scrol
+    y_scrol=ttk.Scrollbar(rl_frame,orient=VERTICAL)
+    y_scrol.pack(side=RIGHT,fill=Y)
+
+     #table
+    AttendanceReportTable=ttk.Treeview(rl_frame,columns=('ID','roll','name','dep','time','date','attendance'),xscrollcommand=x_scrol.set,yscrollcommand=y_scrol.set)
+
+    #scrol config with table
+    x_scrol.config(command= AttendanceReportTable.xview)
+    y_scrol.config(command= AttendanceReportTable.yview)
+
+        #table heading
+    AttendanceReportTable.heading('ID',text='Attendance ID.')
+    AttendanceReportTable.heading('roll',text='Roll_no.')
+    AttendanceReportTable.heading('name',text='Name')
+    AttendanceReportTable.heading('dep',text='Department')
+    AttendanceReportTable.heading('time',text='Time')
+    AttendanceReportTable.heading('date',text='Date')
+    AttendanceReportTable.heading('attendance',text='Attendance')
+
+    AttendanceReportTable['show']='headings'
+    AttendanceReportTable.column('dep',width=100)
+    AttendanceReportTable.column('ID',width=100)
+    AttendanceReportTable.column('name',width=100)
+    AttendanceReportTable.column('date',width=100)
+    AttendanceReportTable.column('roll',width=100)
+    AttendanceReportTable.column('time',width=100)
+    AttendanceReportTable.column('attendance',width=100)
+    AttendanceReportTable.pack(fill=BOTH,expand=1)
+    fetchData(mydata)
+
+    AttendanceReportTable.bind('<ButtonRelease>',cursor_Atten)
+
+    
+
+
+
+
 
 def train_func():
     data_dir=('data')
@@ -598,7 +855,8 @@ def train_func():
 
         
 def photo_func():
-    os.startfile('data')
+    # os.startfile('data')
+    os.system(r'xdg-open  data')
 
 def nav(root):
     #navigation
@@ -660,4 +918,3 @@ if __name__=='__main__':
     
 
     root.mainloop()
-
