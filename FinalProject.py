@@ -12,6 +12,10 @@ import os
 import numpy as np
 import csv
 from tkinter import filedialog
+from tkinter.simpledialog import askstring
+from tkinter.messagebox import showinfo
+
+
 def home():
     nav_text=Label(root,text='Home',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
     nav_text.place(relx=0.01,rely=0.005)
@@ -71,7 +75,7 @@ def student_func():
     var_tsp=StringVar()
          
     def save_func():
-        if var_dept.get()=='Select Department' or var_course.get()=='Select Course' or var_year.get()=='Select Year'or var_sem.get()=='Select Semister' or var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='' or var_gender.get()=='Select Gender' or var_dob.get()=='' or var_email.get()=='' or var_mobile.get()==''or var_add.get()==''or var_tsp=='':
+        if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
             messagebox.showerror('Error','All Fields are Required!!!')
         else:
             try:
@@ -134,7 +138,7 @@ def student_func():
 
 #update function
     def updata():
-        if var_dept.get()=='Select Department' or var_course.get()=='Select Course' or var_year.get()=='Select Year'or var_sem.get()=='Select Semister' or var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='' or var_gender.get()=='Select Gender' or var_dob.get()=='' or var_email.get()=='' or var_mobile.get()==''or var_add.get()==''or var_tsp=='':
+        if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
             messagebox.showerror('Error','All Fields are Required!!!')
         else:
             try:
@@ -196,7 +200,7 @@ def student_func():
 
 #generating data set
     def generate():
-        if var_dept.get()=='Select Department' or var_course.get()=='Select Course' or var_year.get()=='Select Year'or var_sem.get()=='Select Semister' or var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='' or var_gender.get()=='Select Gender' or var_dob.get()=='' or var_email.get()=='' or var_mobile.get()==''or var_add.get()==''or var_tsp=='':
+        if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
             messagebox.showerror('Error','All Fields are Required!!!')
         else:
             try:
@@ -225,7 +229,7 @@ def student_func():
                     ))
                 conn.commit()
                 fetch_data()
-                reset()
+                # reset()
                 conn.close()
 
 
@@ -251,13 +255,16 @@ def student_func():
                         img_id+=1
                         face=cv2.resize(face_cropped(myframe),(450,450))
                         face=cv2.cvtColor(face,cv2.COLOR_BGR2GRAY)
-                        file_name_path='data/user.'+str(id)+'.'+str(img_id)+'.jpg'
+                        file_name_path='data/user.'+var_stdID.get()+'.'+str(img_id)+'.jpg'
                         cv2.imwrite(file_name_path,face)
+                        # print(var_stdID.get(),'hey')
                         cv2.putText(face,str(img_id),(50,50),cv2.FONT_HERSHEY_COMPLEX,2,(123,123,123),2)
                         cv2.imshow('Cropped Face',face)
+                
 
                     if cv2.waitKey(1)==13 or int(img_id)==100:
                         break
+                reset()
                 cap.release()
                 cv2.destroyAllWindows()
                 messagebox.showinfo('Result','Generating Data Sets completed')
@@ -505,8 +512,18 @@ def student_func():
     fetch_data()
 
 def face_func():
+    ask=messagebox.askyesno('Face Detector','Click "Yes" if want to create new atendance sheet.\n Click "No" if want to select existing Sheet',parent=root)
+    if ask>0:
+        name = askstring('Attendance Sheet', 'Enter Subject or Class: ')
+        file_name=name+'.csv'
+        open(file_name,'w')
+    else:
+        file_name=filedialog.askopenfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
+
+        
     def mark_attandance(i,r,n,d):
-        with open('Attandance.csv','r+',newline='\n') as f:
+        
+        with open(file_name,'r+',newline='\n') as f:
             myDataList=f.readlines()
             name_list=[]
             for line in myDataList:
@@ -583,7 +600,7 @@ def face_func():
 
     
 
-mydata=[]
+
 
 def atten_func():
     #variables
@@ -594,6 +611,8 @@ def atten_func():
     var_Atime=StringVar()
     var_Adate=StringVar()
     var_Astatus=StringVar()
+    mydata=[]
+    
 
     def fetchData(rows):
         AttendanceReportTable.delete(* AttendanceReportTable.get_children())
@@ -612,34 +631,53 @@ def atten_func():
         var_Adate.set(data[5]),
         var_Astatus.set(data[6]),
 
-
+    fln=filedialog.askopenfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
 
     def import_csv():
         global mydata
-        fln=filedialog.askopenfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
-        with open(fln) as myfile:
+        mydata=[]
+        
+        with open(fln,'r') as myfile:
             csvread=csv.reader(myfile,delimiter=",")
             for i in csvread:
                 mydata.append(i)
             fetchData(mydata)
+        
     
     def export_csv():
         try:
             if len(mydata)<1:
                 messagebox.showerror('No Data',' No Data found to Export!',parent=root)
                 return False
-            fln=filedialog.asksaveasfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
-            with open(fln,mode='w',newline="") as myfile:
+            flnex=filedialog.asksaveasfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
+            with open(flnex,mode='w',newline="") as myfile:
                 csvwrite=csv.writer(myfile,delimiter=',')
                 for i in mydata:
                     csvwrite.writerow(i)
-                messagebox.showinfo('Result','Data Exported to'+os.path.basename(fln)+'Successfully ')
+                messagebox.showinfo('Result','Data Exported to'+os.path.basename(flnex)+'Successfully ')
         except Exception as e:
                 messagebox.showerror('Error',f'Due to {e}')
 
-        
-    # def update_csv():
-    #     pass
+    def updatecsv():
+            print(str(var_AstdID.get()),type(var_AstdID.get()))
+            for i in mydata:
+                if len(i)>0:
+                    if i[0]==var_AstdID.get():
+                        i[0],i[1],i[2],i[3],i[4],i[5],i[6]=var_AstdID.get(),var_Arollno.get(),var_AstdName.get(),var_Adept.get(),var_Atime.get(),var_Adate.get(),var_Astatus.get()
+                        print(mydata)
+            try:
+                with open(fln,mode='w',newline="") as myfile:
+                    csvwrite=csv.writer(myfile,delimiter=',')
+                    for i in mydata:
+                        csvwrite.writerow(i)
+                    messagebox.showinfo('Result','File '+os.path.basename(fln)+' Updated Successfully ')
+                    fetchData(mydata)
+            except Exception as e:
+                messagebox.showerror('Error',f'Due to {e}')
+
+            # messagebox.showinfo('Result','Updated Successfully ')        
+
+
     def reset_csv():
         var_AstdID.set(''),
         var_Arollno.set(''),
@@ -663,7 +701,7 @@ def atten_func():
     left_frame=LabelFrame(mainframe,text='Student Attendance Details',bd=3,fg='#9f1c33',font=('times new roman',15),borderwidth=3,relief=RAISED)
     left_frame.place(relx=0.005,rely=0.02,width=610,height=465)
 
-    #left upper frame
+    #left upper frame 9321999651
     lu_frame=LabelFrame(left_frame,borderwidth=2,font=('times new roman',12),fg='#9f1c33',relief=SUNKEN)
     lu_frame.place(relx=0.01,rely=0.025 ,width=590,height=160)
     
@@ -772,7 +810,7 @@ def atten_func():
     exportcsv_but=Button(ll_frame,text='Export CSV',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=13,borderwidth=5,command=export_csv)
     exportcsv_but.grid(row=0,column=1,padx=4,pady=0)
     # update button
-    Update_but=Button(ll_frame,text='Update',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=13,borderwidth=5)
+    Update_but=Button(ll_frame,text='Update',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=13,borderwidth=5,command=updatecsv)
     Update_but.grid(row=0,column=2,padx=4,pady=0)
     # Reset button
     Reset_but=Button(ll_frame,text='Reset',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=13,borderwidth=5,command=reset_csv)
@@ -858,18 +896,31 @@ def photo_func():
     # os.startfile('data')
     os.system(r'xdg-open  data')
 
+def exit():
+    exit=messagebox.askyesno('Face Recognition','Are you sure Exit this project',parent=root)
+    if exit>0:
+        root.destroy()
+    else:
+        return
+
 def nav(root):
     #navigation
     nav=Label( root,bg='#636466',width=1530,height=2)
     nav.place(relx=0,rely=0)
-
+    def time():
+        str=strftime('%H:%M:%S %p')
+        time_lbl.config(text=str)
+        time_lbl.after(1000,time)
     #nav_button
-    Dev_but=Button( root,text='Developer',font=('times new roman',14),fg='white',bg='#636466',relief=RAISED,cursor='hand2',width=10)
-    Dev_but.place(relx=0.74,rely=0.0)
-    help_but=Button( root,text='Help Desk',font=('times new roman',14),fg='white',bg='#636466',relief=RAISED,cursor='hand2',width=10)
-    help_but.place(relx=0.82,rely=0.0)
-    exit_but=Button( root,text='Exit',font=('times new roman',14),fg='white',bg='#636466',relief=RAISED,cursor='hand2',width=10)
-    exit_but.place(relx=0.9,rely=0.0)
+    # Dev_but=Button( root,text='Developer',font=('times new roman',14),fg='white',bg='#636466',relief=RAISED,cursor='hand2',width=10)
+    # Dev_but.place(relx=0.74,rely=0.0)
+    # help_but=Button( root,text='Help Desk',font=('times new roman',14),fg='white',bg='#636466',relief=RAISED,cursor='hand2',width=10)
+    # help_but.place(relx=0.82,rely=0.0)
+    time_lbl=Label(root,font=('times new roman',14),fg='White',bg='#636466',width=10)
+    time_lbl.place(relx=0.83,rely=0.01)
+    time()
+    exit_but=Button( root,text='Exit',font=('times new roman',14),fg='white',bg='#636466',relief=RAISED,cursor='hand2',width=10,command=exit)
+    exit_but.place(relx=0.91,rely=0.0)
     #logo
     
     #college name
