@@ -965,6 +965,7 @@ def main():
         exit=messagebox.askyesno('Face Recognition','Are you sure Exit this project',parent=root)
         if exit>0:
             root.destroy()
+            auth.destroy()
         else:
             return
 
@@ -1164,10 +1165,13 @@ def login_func():
                 test=db_cursor.fetchone()
                 if test[0]==var_pass.get():
                     messagebox.showinfo('Successful','Loged In Successfully')
+                    auth.withdraw()
                     main()
+
                     
                 else:
                     messagebox.showerror('Alert!!!','Incorrect Password, \n  Please try again')
+
 
                     
                 conn.commit()
@@ -1175,6 +1179,7 @@ def login_func():
                 
             except Exception as e:
                 messagebox.showerror('Alert!!!',f'Username {var_user.get()} is not registered')
+                
                 #print(e)
     
 
