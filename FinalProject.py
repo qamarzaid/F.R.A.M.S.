@@ -325,8 +325,8 @@ def main():
                     else:
                         return
                     Data=db_cursor.fetchmany()
-                    # print(var_se)
-                    # print(Data)
+                    # #print(var_se)
+                    # #print(Data)
                     if len(Data)!=0:
                         table.delete(* table.get_children())
                         for i in Data:
@@ -751,11 +751,11 @@ def main():
                 var_Astatus.set('')
                 
             #nav tag
-            nav_text=Label(text='Attendance',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
+            nav_text=Label(root,text='Attendance',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
             nav_text.place(relx=0.01,rely=0.005)
 
             #main frame
-            mainframe=Frame(bd=4,bg='#636466',relief=SUNKEN,borderwidth=3)
+            mainframe=Frame(root,bd=4,bg='#636466',relief=SUNKEN,borderwidth=3)
             mainframe.place(relx=0.0,rely=0.308,width=1365,height=485)
 
             #left frame
@@ -786,9 +786,9 @@ def main():
             dep_lbl.grid(row=1,column=0,padx=2.5,pady=7.5,sticky=W)
 
 
-            dep_cb=ttk.Combobox(lu_frame,font=('times new roman',12),width=17,textvariable=var_Adept)
-            dep_cb['values']=('Computer','IT','Civil','Electrical','Mechnical')
-            # dep_cb.current(0)
+            dep_cb=ttk.Combobox(lu_frame,font=('times new roman',12),state='readonly',width=17,textvariable=var_Adept)
+            dep_cb['values']=('Select Department','Computer','IT','Civil','Electrical','Mechnical')
+            dep_cb.current(0)
             dep_cb.grid(row=1,column=1,padx=2.5,pady=7.5,sticky=W)
             
 
@@ -817,10 +817,10 @@ def main():
             a_status_lbl=Label(lu_frame,text="Attendance Status : ",font=('times new roman',12))
             a_status_lbl.grid(row=3,column=0,padx=2.5,pady=7.5,sticky=E)
 
-            a_status_cb=ttk.Combobox(lu_frame,font=('times new roman',12),width=17,textvariable=var_Astatus)
-            a_status_cb['values']=('Present','Absent')
+            a_status_cb=ttk.Combobox(lu_frame,font=('times new roman',12),state='readonly',width=17,textvariable=var_Astatus)
+            a_status_cb['values']=('Select','Present','Absent')
             a_status_cb.grid(row=3,column=1,padx=2.5,pady=7.5,sticky=E)
-            # a_status_cb.current(0)
+            a_status_cb.current(0)
 
 
             #left middle frame
@@ -968,7 +968,7 @@ def main():
         else:
             return
 
-    def nav(root):
+    def nav(root=root):
         #navigation
         nav=Label( root,bg='#636466',width=1530,height=2)
         nav.place(relx=0,rely=0)
@@ -1022,24 +1022,136 @@ def main():
     
     nav(root)
     root.mainloop()
-def auth_page(auth):
+
+
+def register_func():
+    auth.geometry(f'300x350+{int(screen_width)}+{int(screen_height)}')
     var_user=StringVar()
     var_pass=StringVar()
+    var_sq=StringVar()
+    var_ans=StringVar()
     def register():
-        if var_user=='' or var_pass=='':
+        if var_user=='' or var_pass=='' or var_sq=='Select' or var_ans=='':
             messagebox.showerror('Error','All Fields are Required!!!')
         else:
             try:
                 conn=sqlite3.connect('Student_DB.db')
                 db_cursor=conn.cursor()
-                db_cursor.execute(' INSERT INTO users VALUES (?,?)',(   var_user.get(), 
-                    var_pass.get()
+                db_cursor.execute(' INSERT INTO users VALUES (?,?,?,?)',(   var_user.get(), 
+                    var_pass.get(),var_sq.get(),var_ans.get()
                 ))  
                 conn.commit()
                 conn.close()
                 messagebox.showinfo('Registered','User Registered Successfully')
+                login_func()
             except Exception as e:
                 messagebox.showerror('Alert',f'Username {var_user.get()} is already registered')
+                login_func()
+    lu_frame=Canvas(auth,highlightthickness=0,bg='white')
+    lu_frame.place(relx=0.01,rely=0.4 ,width=289,height=250)
+    
+    user_lbl=Label(lu_frame,text="Username : ",font=('times new roman',12),bg='white',fg='#9f1c33')
+    user_lbl.place(relx=0.16,rely=0.0)
+
+    user_tb=Entry(lu_frame,font=('times new roman',10),width=18,textvariable=var_user,bg='white')
+    user_tb.place(relx=0.42,rely=0.0)
+    
+
+
+    pass_lbl=Label(lu_frame,text="Password : ",font=('times new roman',12),bg='white',fg='#9f1c33')
+    pass_lbl.place(relx=0.16,rely=0.15)
+
+    pass_tb=Entry(lu_frame,font=('times new roman',10),width=18,textvariable=var_pass,show='*')
+    pass_tb.place(relx=0.42,rely=0.15)
+    
+    secque_lbl=Label(lu_frame,text="Security Question : ",font=('times new roman',12),fg="#9f1c33",bg='white')
+    secque_lbl.place(relx=0.05,rely=0.3)
+
+    secque_cb=ttk.Combobox(lu_frame,font=('times new roman',10),state='readonly',width=17,textvariable=var_sq)
+    secque_cb['values']=('Select','Nickname?','First School?','Favourite Colour?','Birth Place??','Hobby?')
+    secque_cb.current(0)
+    secque_cb.place(relx=0.5,rely=0.3)
+
+    ans_lbl=Label(lu_frame,text="Answer : ",font=('times new roman',12),bg='white',fg='#9f1c33')
+    ans_lbl.place(relx=0.16,rely=0.45)
+
+    ans_tb=Entry(lu_frame,font=('times new roman',10),width=18,textvariable=var_ans,bg='white')
+    ans_tb.place(relx=0.42,rely=0.45)
+
+    
+    register_but=Button(lu_frame,text='Register',font=('times new roman',11),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=7,borderwidth=3,command=register)
+    register_but.place(relx=0.4,rely=0.6)
+    
+   
+def forgot_func():
+    auth.geometry(f'300x300+{int(screen_width)}+{int(screen_height)}')
+    var_user=StringVar()
+    var_pass=StringVar()
+    var_sq=StringVar()
+    var_ans=StringVar()
+    def forpass():
+        if var_user=='' or var_sq=='Select' or var_ans=='':
+            messagebox.showerror('Error','All Fields are Required!!!')
+        else:
+            try:
+                conn=sqlite3.connect('Student_DB.db')
+                db_cursor=conn.cursor()
+                db_cursor.execute(' SELECT * FROM users WHERE Username=? ',(   var_user.get(), 
+                )) 
+                test=db_cursor.fetchone()
+                #print(test)
+                if test[2]==var_sq.get() and test[3]==var_ans.get():
+                    messagebox.showinfo('Authenticated',f'Your Password is {test[1]} .')
+                    login_func()
+                    
+                else:
+                    messagebox.showerror('Alert!!!','Incorrect Security Question/Answer, \n  Please try again')
+
+                    
+                conn.commit()
+                conn.close()
+                
+            except Exception as e:
+                messagebox.showerror('Alert!!!',f'Username {var_user.get()} is not registered')
+                register_func()
+                # print(e)
+    l_frame=Canvas(auth,highlightthickness=0,bg='white')
+    l_frame.place(relx=0.01,rely=0.4 ,width=289,height=250)
+    
+    user_lbl=Label(l_frame,text="Username : ",font=('times new roman',12),bg='white',fg='#9f1c33')
+    user_lbl.place(relx=0.16,rely=0.0)
+
+    user_tb=Entry(l_frame,font=('times new roman',10),width=18,textvariable=var_user,bg='white')
+    user_tb.place(relx=0.42,rely=0.0)
+    
+    
+    secque_lbl=Label(l_frame,text="Security Question : ",font=('times new roman',12),fg="#9f1c33",bg='white')
+    secque_lbl.place(relx=0.05,rely=0.15)
+
+    secque_cb=ttk.Combobox(l_frame,font=('times new roman',10),state='readonly',width=17,textvariable=var_sq)
+    secque_cb['values']=('Select','Nickname?','First School?','Favourite Colour?','Birth Place??','Hobby?')
+    secque_cb.current(0)
+    secque_cb.place(relx=0.5,rely=0.15)
+
+    ans_lbl=Label(l_frame,text="Answer : ",font=('times new roman',12),bg='white',fg='#9f1c33')
+    ans_lbl.place(relx=0.16,rely=0.3)
+
+    ans_tb=Entry(l_frame,font=('times new roman',10),width=18,textvariable=var_ans,bg='white')
+    ans_tb.place(relx=0.42,rely=0.3)
+
+    
+    getpass_but=Button(l_frame,text='Authenticate',font=('times new roman',11),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=8,borderwidth=3,command=forpass)
+    getpass_but.place(relx=0.4,rely=0.5)
+    
+    
+
+def login_func():
+    auth.geometry(f'300x300+{int(screen_width)}+{int(screen_height)}')
+    var_user=StringVar()
+    var_pass=StringVar()
+    var_sq=StringVar()
+    var_ans=StringVar()
+    
     def login():
         if var_user=='' or var_pass=='':
             messagebox.showerror('Error','All Fields are Required!!!')
@@ -1063,35 +1175,39 @@ def auth_page(auth):
                 
             except Exception as e:
                 messagebox.showerror('Alert!!!',f'Username {var_user.get()} is not registered')
-                print(e)
-
+                #print(e)
+    
 
         
     ll_frame=Canvas(auth,highlightthickness=0,bg='white')
-    ll_frame.place(relx=0.01,rely=0.3 ,width=289,height=220)
-    login_lbl=Label(ll_frame,text="Welcome to F.R.A.M.S.",font=('times new roman',18),bg='white',fg='#9f1c33')
-    login_lbl.place(relx=0.12,rely=0.0)
+    ll_frame.place(relx=0.01,rely=0.4 ,width=289,height=220)
+    
     user_lbl=Label(ll_frame,text="Username : ",font=('times new roman',12),bg='white',fg='#9f1c33')
-    user_lbl.place(relx=0.16,rely=0.25)
+    user_lbl.place(relx=0.16,rely=0.05)
 
     user_tb=Entry(ll_frame,font=('times new roman',10),width=18,textvariable=var_user,bg='white')
-    user_tb.place(relx=0.42,rely=0.25)
+    user_tb.place(relx=0.42,rely=0.05)
     
 
 
     pass_lbl=Label(ll_frame,text="Password : ",font=('times new roman',12),bg='white',fg='#9f1c33')
-    pass_lbl.place(relx=0.16,rely=0.45)
+    pass_lbl.place(relx=0.16,rely=0.25)
 
     pass_tb=Entry(ll_frame,font=('times new roman',10),width=18,textvariable=var_pass,show='*')
-    pass_tb.place(relx=0.42,rely=0.45)
+    pass_tb.place(relx=0.42,rely=0.25)
 
-    login_but=Button(ll_frame,text='Log In',font=('times new roman',10),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=5,borderwidth=3,command=login)
-    login_but.place(relx=0.25,rely=0.65)
+    login_but=Button(ll_frame,text='Log In',font=('times new roman',11),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=7,borderwidth=3,command=login)
+    login_but.place(relx=0.16,rely=0.5)
     
-    
+    register_but=Button(ll_frame,text='Register',font=('times new roman',10),bg='white',fg='#9E1C32',borderwidth=0,cursor='hand2',command=register_func,highlightthickness=0)
+    register_but.place(relx=0.55,rely=0.47)
+
+    forgotPass_but=Button(ll_frame,text='Forgot Password',font=('times new roman',10),bg='white',fg='#9E1C32',borderwidth=0,cursor='hand2',command=forgot_func,highlightthickness=0)
+    forgotPass_but.place(relx=0.55,rely=0.57)
     # update button
-    register_but=Button(ll_frame,text='Register',font=('times new roman',10),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=5,borderwidth=3,command=register)
-    register_but.place(relx=0.55,rely=0.65)
+    # register_but=Button(ll_frame,text='Register',font=('times new roman',10),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=5,borderwidth=3,command=register)
+    # register_but.place(relx=0.55,rely=0.65)
+
 
 
 
@@ -1108,7 +1224,9 @@ if __name__=='__main__':
     logo_lable=Label( auth,image=logo,border=0,borderwidth=0,cursor='hand2')
     logo_lable.place(relx=0.38,rely=0.03)
     logo_lable.bind('<Button-1>', lambda x: webbrowser.open_new('https://dypatiluniversitypune.edu.in/school-of-engineering-ambi.php'))
-    auth_page(auth)
+    login_lbl=Label(auth,text="Welcome to F.R.A.M.S.",font=('times new roman',18),bg='white',fg='#9f1c33')
+    login_lbl.place(relx=0.12,rely=0.26)
+    login_func()
 
     
     
