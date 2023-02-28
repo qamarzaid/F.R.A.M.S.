@@ -15,6 +15,14 @@ from tkinter.simpledialog import askstring
 from tkinter.messagebox import showinfo
 import platform
 z=1
+import pyttsx3      #for output voice
+api=pyttsx3.init('espeak')    #initialization of voice from api
+voices=api.getProperty('voices')   
+# print(voices)  
+api.setProperty('voice', 'english_rp')
+def bol(audio): #function for output voice
+    api.say(audio)  
+    api.runAndWait()
 def main():
 
     root=Toplevel(auth)
@@ -22,7 +30,8 @@ def main():
     screen_height = root.winfo_screenheight()
     root.geometry(f'{screen_width}x{screen_height}')
     # print(screen_width)
-    # root.iconbitmap('bit.ico'.format(BitmapImage))
+    # root.iconbitmap('AMS.ico')
+    root.iconphoto(False, PhotoImage('/home/zaidqam/Desktop/FRAMS/—Pngtree—colorful bio metrics face recognition_4962272.png')) 
     root.title('F.R.A.M.S')
     root.configure(bg='white')
     root.resizable(False,False)
@@ -205,8 +214,9 @@ def main():
                     add_lbl=Label(ll_frame,text="Address: ",font=('times new roman',12))
                     add_lbl.grid(row=4,column=0,padx=2.5,pady=7.5,sticky=W)
     
-
+                #bol('Please Enter Highlighted Field Accuratety')
                 messagebox.showerror('Error','Please Enter Highlighted Field Accuratety')
+                
                 
             else:
                 print('else: ',var_dept.get(),var_course.get(),var_year.get(),var_sem.get(),var_stdID.get(),var_stdName.get(),var_div.get(),var_rollno.get(),var_gender.get(),var_dob.get(),var_email.get(),var_mobile.get(),var_add.get())
@@ -243,8 +253,11 @@ def main():
 
                 
     
-                if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
-                    messagebox.showerror('Error','All Fields are Required!!!')
+                if var_stdID.get()=='' or var_stdName.get()==''  or var_rollno.get()=='':
+                    #bol('Student I D  number   ,   Student Name  ,Roll number are required')
+                    messagebox.showerror('Error','StudentID, Student Name, Roll no. id required!!!')
+                    
+
                 else:
                     try:
                         conn=sqlite3.connect('Student_DB.db')
@@ -267,9 +280,10 @@ def main():
                         conn.commit()
                         fetch_data()
                         conn.close()
-
+                        #bol('Student Details Saved Successfully ')
                         messagebox.showinfo('Saved','Student Details Saved Successfully ')
                     except Exception as e:
+                        #bol(f'Error ,Due to {e}')
                         messagebox.showerror('Error',f'Due to {e}')
             
         #fetch data into table 
@@ -312,10 +326,13 @@ def main():
         
             
             
-            if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
-                messagebox.showerror('Error','All Fields are Required!!!')
+            if var_stdID.get()=='' or var_stdName.get()==''  or var_rollno.get()=='':
+                    #bol('Student I D  number   ,   Student Name  ,Roll number are required')
+                    messagebox.showerror('Error','StudentID, Student Name, Roll no. id required!!!')
+                    
             else:
                 try:
+                    #bol(f'Do you want to update student detail of, {var_stdID.get()}?')
                     Update=messagebox.askyesno('Update!!!',f'Do you want to update student detail of {var_stdID.get()}?')
                     if Update>0:
                         conn=sqlite3.connect('Student_DB.db')
@@ -325,19 +342,23 @@ def main():
                     else:
                         if  not Update:
                             return
-                    messagebox.showinfo('Updated',f'{var_stdID.get()} student detail Successfully Updated.')
+                    #bol(f'student details of ,{var_stdID.get()},   Updated Successfully.')
+                    messagebox.showinfo('Updated',f'Student details of {var_stdID.get()} Updated Successfully .')
                     conn.commit()
                     fetch_data()
                     conn.close()
                 except Exception as e:
+                    #bol(f'Error, Due to {e}')
                     messagebox.showerror('Error',f'Due to {e}')
 
     #delete data function
         def delta():
             if var_stdID.get()=='':
+                #bol('Student I D number   Required')
                 messagebox.showerror('Error','StudentID no.  Required!!!')
             else:
                 try:
+                    #bol(f'Do you want to delete student details of ,{var_stdID.get()}?')
                     delete=messagebox.askyesno('Delete!!!',f'Do you want to delete student detail of {var_stdID.get()}?')
                     if delete>0:
                         conn=sqlite3.connect('Student_DB.db')
@@ -351,12 +372,13 @@ def main():
                     for i in range(1,101):
                         file = 'data/user.'+var_stdID.get()+'.'+str(i)+'.jpg'
                         os.remove(file)
-
-                    messagebox.showinfo('Deleted',f'{var_stdID.get()} student detail Successfully Deleted.')
+                    #bol(f'student details of ,{var_stdID.get()},   Deleted Successfully.')
+                    messagebox.showinfo('Deleted',f'Student details of {var_stdID.get()}  Deleted Successfully.')
                     conn.commit()
                     fetch_data()
                     conn.close()
                 except Exception as e:
+                    #bol(f'Error, Due to {e}')
                     messagebox.showerror('Error',f'Due to {e}')
                     
     #reset function
@@ -430,35 +452,46 @@ def main():
             cv2.destroyAllWindows()
 
         def add_photo():
-            if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
-                messagebox.showerror('Error','All Fields are Required!!!')
+            if var_stdID.get()=='' or var_stdName.get()==''  or var_rollno.get()=='':
+                    #bol('Student I D  number   ,   Student Name  ,Roll number are required')
+                    messagebox.showerror('Error','StudentID, Student Name, Roll no. id required!!!')
+                    
             else:
                 try:
                     generate_photo()
 
-                    
+                    #bol('Generating Data Sets completed')
                     messagebox.showinfo('Result','Generating Data Sets completed')
                 except Exception as e:
+                    #bol(f'Error ,Due to {e}')
                     messagebox.showerror('Error',f'Due to {e}')
         
         def update_photo():
-            if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
-                messagebox.showerror('Error','All Fields are Required!!!')
+            if var_stdID.get()=='' or var_stdName.get()==''  or var_rollno.get()=='':
+                    #bol('Student I D  number   ,   Student Name  ,Roll number are required')
+                    messagebox.showerror('Error','StudentID, Student Name, Roll no. id required!!!')
+                    
             else:
                 try:
                     for i in range(1,101):
                         file = 'data/user.'+var_stdID.get()+'.'+str(i)+'.jpg'
                         os.remove(file)
                     generate_photo()
-                    
-                    messagebox.showinfo('Result','Generating Data Sets Updated Successfully')
+                    #bol('Data Sets Updated Successfully')
+                    messagebox.showinfo('Result','Data Sets Updated Successfully')
                 except Exception as e:
+                    #bol(f'Error ,Due to {e}')
                     messagebox.showerror('Error',f'Due to {e}')
 
         def search():
             if var_searchcb.get()=='Select':
-                messagebox.showerror('Error','Fields are Required!!!')
+                search_label=Label(ru_frame,text='Search by',font=('times new roman',12),fg='red')
+                search_label.grid(row=0,column=0,padx=10, pady=10)
+                #bol('All Fields are Required')
+                messagebox.showerror('Error','All Fields are Required!!!')
             else:
+                search_label=Label(ru_frame,text='Search by',font=('times new roman',12))
+                search_label.grid(row=0,column=0,padx=10, pady=10)
                 try:
 
                     conn=sqlite3.connect('Student_DB.db')
@@ -481,10 +514,12 @@ def main():
                         conn.commit()
                         conn.close()
                     else:
+                        #bol('Given ,'+var_searchcb.get()+', '+ var_searchtb.get()+' ,is not found')
                         messagebox.showerror('Error','Given '+var_searchcb.get()+': '+ var_searchtb.get()+' is not found')
 
                     
                 except Exception as e:
+                    #bol(f'Error, Due to {e}')
                     messagebox.showerror('Error',f'Due to {e}')
                 
         #main frame
@@ -727,20 +762,21 @@ def main():
         fetch_data()
 
     def face_func(root=root):
-
+        #bol('Click ,Yes ,if want to create new atendance sheet. else . Click , "No", if want to select existing Sheet')
         ask=messagebox.askyesno('Face Detector','Click "Yes" if want to create new atendance sheet.\n Click "No" if want to select existing Sheet',parent=root)
         if ask==True:
             try:
                 name = askstring('Attendance Sheet', 'Enter Subject or Class: ')
-                file_name=name+'.csv'
+                file_name=f'Attendance Sheets/{name}.csv'
                 open(file_name,'w')
             except Exception as e:
+                #bol('Please Try again and Select file.')
                 messagebox.showwarning('Alert!!!','Please Try again and Select file.')
                 home()
                 return
             
         else:
-            file_name=filedialog.askopenfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
+            file_name=filedialog.askopenfilename(initialdir='Attendance Sheets',title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
 
         if len(file_name)>0:
 
@@ -820,6 +856,7 @@ def main():
             video_cap.release()
             cv2.destroyAllWindows() 
         else:
+            #bol('Please Try again and Select file.')
             messagebox.showwarning('Alert!!!','Please Try again and Select file.')
             home()
             
@@ -852,21 +889,24 @@ def main():
             var_Adate.set(data[5]),
             var_Astatus.set(data[6]),
 
-        fln=filedialog.askopenfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
+        fln=filedialog.askopenfilename(initialdir='Attendance Sheets',title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
         if len(fln)>0:
 
             def export_csv():
                 try:
                     if len(mydata)<1:
+                        #bol(' No Data found to Export')
                         messagebox.showerror('No Data',' No Data found to Export!',parent=root)
                         return False
-                    flnex=filedialog.asksaveasfilename(initialdir=os.getcwd(),title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
+                    flnex=filedialog.asksaveasfilename(initialdir='Attendance Sheets',title="Open CSV",filetypes=(('CSV File','*.csv'),("All File","*.*")),parent=root)
                     with open(flnex,mode='w',newline="") as myfile:
                         csvwrite=csv.writer(myfile,delimiter=',')
                         for i in mydata:
                             csvwrite.writerow(i)
+                        #bol('Data Exported to ,'+os.path.basename(flnex)+' ,Successfully ')
                         messagebox.showinfo('Result','Data Exported to '+os.path.basename(flnex)+' Successfully ')
                 except Exception as e:
+                        #bol(f'Error,Due to {e}')
                         messagebox.showerror('Error',f'Due to {e}')
 
             def updatecsv():
@@ -880,11 +920,13 @@ def main():
                             csvwrite=csv.writer(myfile,delimiter=',')
                             for i in mydata:
                                 csvwrite.writerow(i)
-
+                            #bol('File ,'+os.path.basename(fln)+' ,Updated Successfully ')
                             messagebox.showinfo('Result','File '+os.path.basename(fln)+' Updated Successfully ')
                             fetchData(mydata)
 
                     except Exception as e:
+                        #bol(f'Error,Due to {e}')
+
                         messagebox.showerror('Error',f'Due to {e}')
 
         
@@ -1076,6 +1118,7 @@ def main():
                 fetchData(mydata)
             AttendanceReportTable.bind('<ButtonRelease>',cursor_Atten)
         else:
+            #bol('Please Try again and Select file.')
             messagebox.showwarning('Alert!!!','Please Try again and Select file.')
             home()
 
@@ -1102,6 +1145,7 @@ def main():
         lbph.train(faces,ids)
         lbph.write('classifier.xml')
         cv2.destroyAllWindows()
+        #bol('Trainning Datasets Completed')
         messagebox.showinfo('Result','Trainning Datasets Completed!!!')
         
     def photo_func(root=root):
@@ -1112,7 +1156,8 @@ def main():
             
 
     def exit(root=root):
-        exit=messagebox.askyesno('Face Recognition','Are you sure Exit this project',parent=root)
+        #bol('Are you sure to Exit FRAMS? ')
+        exit=messagebox.askyesno('Face Recognition','Are you sure to Exit FRAMS? ',parent=root)
         if exit>0:
             root.destroy()
             auth.destroy()
@@ -1188,7 +1233,8 @@ def register_func():
     var_sq=StringVar()
     var_ans=StringVar()
     def register():
-        if var_user=='' or var_pass=='' or var_sq=='Select' or var_ans=='':
+        if var_user.get()=='' or var_pass.get()=='' or var_sq.get()=='Select' or var_ans.get()=='':
+            #bol('All Fields are Required')
             messagebox.showerror('Error','All Fields are Required!!!')
         else:
             try:
@@ -1199,9 +1245,11 @@ def register_func():
                 ))  
                 conn.commit()
                 conn.close()
+                #bol('User Registered Successfully')
                 messagebox.showinfo('Registered','User Registered Successfully')
                 login_func()
             except Exception as e:
+                #bol(f'Username ,{var_user.get()} ,is already registered')
                 messagebox.showerror('Alert',f'Username {var_user.get()} is already registered')
                 login_func()
     index_frame=Canvas(auth,highlightthickness=0,bg='#636466')
@@ -1242,7 +1290,8 @@ def register_func():
     
     register_but=Button(lu_frame,text='Register',font=('times new roman',11),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=7,borderwidth=3,command=register)
     register_but.place(relx=0.4,rely=0.6)
-    
+    resortlogin_but=Button(lu_frame,text='Login',font=('times new roman',10),bg='white',fg='#9E1C32',borderwidth=0,cursor='hand2',command=login_func,highlightthickness=0)
+    resortlogin_but.place(relx=0.7,rely=0.65)    
    
 def forgot_func():
     auth.geometry(f'300x300+{int(screen_width)}+{int(screen_height)}')
@@ -1251,7 +1300,8 @@ def forgot_func():
     var_sq=StringVar()
     var_ans=StringVar()
     def forpass():
-        if var_user=='' or var_sq=='Select' or var_ans=='':
+        if var_user.get()=='' or var_sq.get()=='Select' or var_ans.get()=='':
+            #bol('All Fields are Required')
             messagebox.showerror('Error','All Fields are Required!!!')
         else:
             try:
@@ -1262,10 +1312,13 @@ def forgot_func():
                 test=db_cursor.fetchone()
                 #print(test)
                 if test[2]==var_sq.get() and test[3]==var_ans.get():
+                    #bol(f'Your Password is ')
+                    #[bol(i) for i in test[1]]
                     messagebox.showinfo('Authenticated',f'Your Password is {test[1]} .')
                     login_func()
                     
                 else:
+                    #bol('Incorrect Security Question , or,Answer , Please try again')
                     messagebox.showerror('Alert!!!','Incorrect Security Question/Answer, \n  Please try again')
 
                     
@@ -1273,6 +1326,7 @@ def forgot_func():
                 conn.close()
                 
             except Exception as e:
+                #bol(f'Username ,{var_user.get()} ,is not registered')
                 messagebox.showerror('Alert!!!',f'Username {var_user.get()} is not registered')
                 register_func()
                 # print(e)
@@ -1307,6 +1361,8 @@ def forgot_func():
     
     getpass_but=Button(l_frame,text='Authenticate',font=('times new roman',11),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=8,borderwidth=3,command=forpass)
     getpass_but.place(relx=0.4,rely=0.5)
+    resortlogin_but=Button(l_frame,text='Login',font=('times new roman',10),bg='white',fg='#9E1C32',borderwidth=0,cursor='hand2',command=login_func,highlightthickness=0)
+    resortlogin_but.place(relx=0.71,rely=0.55)
     
     
 
@@ -1318,7 +1374,8 @@ def login_func():
     var_ans=StringVar()
     
     def login():
-        if var_user=='' or var_pass=='':
+        if var_user.get()=='' or var_pass.get()=='':
+            #bol('All Fields are Required!')
             messagebox.showerror('Error','All Fields are Required!!!')
         else:
             try:
@@ -1328,12 +1385,16 @@ def login_func():
                 )) 
                 test=db_cursor.fetchone()
                 if test[0]==var_pass.get():
+                    
+                    #bol('Loged In Successfully')
                     messagebox.showinfo('Successful','Loged In Successfully')
                     auth.withdraw()
                     main()
 
                     
                 else:
+                    
+                    #bol('Incorrect Password   , Please try again')
                     messagebox.showerror('Alert!!!','Incorrect Password, \n  Please try again')
 
 
@@ -1342,7 +1403,9 @@ def login_func():
                 conn.close()
                 
             except Exception as e:
+                #bol(f'Username ,{var_user.get()} ,is not registered')
                 messagebox.showerror('Alert!!!',f'Username {var_user.get()} is not registered')
+                
                 
                 #print(e)
     
@@ -1383,6 +1446,9 @@ def login_func():
 
 if __name__=='__main__':
     auth=Tk()
+    auth.iconphoto(False, PhotoImage('/home/zaidqam/Desktop/FRAMS/—Pngtree—colorful bio metrics face recognition_4962272.png')) 
+
+
     screen_width = auth.winfo_screenwidth()/2.5
     screen_height = auth.winfo_screenheight()/4
     auth.geometry(f'300x300+{int(screen_width)}+{int(screen_height)}')
