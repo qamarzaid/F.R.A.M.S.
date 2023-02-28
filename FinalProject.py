@@ -16,12 +16,14 @@ from tkinter.messagebox import showinfo
 import platform
 z=1
 def main():
+
     root=Toplevel(auth)
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     root.geometry(f'{screen_width}x{screen_height}')
+    # print(screen_width)
     # root.iconbitmap('bit.ico'.format(BitmapImage))
-    root.title('Face Recognition System')
+    root.title('F.R.A.M.S')
     root.configure(bg='white')
     root.resizable(False,False)
     logo=ImageTk.PhotoImage(Image.open("tasveer/Logo.jpg"))
@@ -29,8 +31,10 @@ def main():
     logo_lable.place(relx=0.02,rely=0.07,relwidth=0.18,relheight=0.12)
     logo_lable.bind('<Button-1>', lambda x: webbrowser.open_new('https://dypatiluniversitypune.edu.in/school-of-engineering-ambi.php'))
     def home(root=root):
-        nav_text=Label(root,text='Home',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
-        nav_text.place(relx=0.01,rely=0.005)
+        nav=Frame( root,bg='#636466',width=1100,height=35)
+        nav.place(relx=0,rely=0)
+        nav_text=Label(nav,text='> Home',font=('times new roman',14,),bg='#636466',fg='white')
+        nav_text.place(relx=0.01,rely=0.05)
         #slideshow
         img1=ImageTk.PhotoImage(Image.open("tasveer/campus4.jpeg").resize((1365,480)))
         img2=ImageTk.PhotoImage(Image.open("tasveer/student-life.jpg").resize((1365,480)))
@@ -67,8 +71,10 @@ def main():
         move()
 
     def student_func(root=root):
-        nav_text=Label(root,text='Student Details',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
-        nav_text.place(relx=0.01,rely=0.005)
+        nav=Frame( root,bg='#636466',width=1100,height=35)
+        nav.place(relx=0,rely=0)
+        nav_text=Label(nav,text='> Student Detail',font=('times new roman',14),bg='#636466',fg='white')
+        nav_text.place(relx=0.01,rely=0.05)
         #backend
         #variables
         var_dept=StringVar()
@@ -87,37 +93,185 @@ def main():
         var_tsp=StringVar()
         var_searchcb=StringVar()
         var_searchtb=StringVar()
-            
-        def save_func():
-            if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
-                messagebox.showerror('Error','All Fields are Required!!!')
-            else:
-                try:
-                    conn=sqlite3.connect('Student_DB.db')
-                    db_cursor=conn.cursor()
-                    db_cursor.execute(' INSERT INTO student VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(   var_dept.get(), 
-                        var_course.get(),
-                        var_year.get(),
-                        var_sem.get(),
-                        var_stdID.get(),
-                        var_stdName.get(),
-                        var_div.get(),
-                        var_rollno.get(),
-                        var_gender.get(),
-                        var_dob.get(),
-                        var_email.get(),
-                        var_mobile.get(),
-                        var_add.get(),
-                        var_tsp.get(),
-                    ))  
-                    conn.commit()
-                    fetch_data()
-                    conn.close()
-
-                    messagebox.showinfo('Saved','Student Details Saved Successfully ')
-                except Exception as e:
-                    messagebox.showerror('Error',f'Due to {e}')
         
+        try:
+            conn=sqlite3.connect('Student_DB.db')
+            db_cursor=conn.cursor()
+            db_cursor.execute('SELECT * FROM student')
+            Data=db_cursor.fetchall()
+            var_stdID.set(str(len(Data)+1))
+            var_rollno.set(str(100+len(Data)+1))
+            var_tsp.set('No')
+        except:
+            pass
+
+            ####3333
+# dep_lbl=Label(lu_frame,text="Department : ",font=('times new roman',12,))
+#         dep_lbl.grid(row=0,column=0,padx=2.5,pady=7.5,sticky=W)
+
+
+
+
+
+
+
+
+
+
+            
+        def validate():
+            # print(len(var_course.get()))
+            # print(len('Select Course'))
+            print('enter: ',var_dept.get(),var_course.get(),var_year.get(),var_sem.get(),var_stdID.get(),var_stdName.get(),var_div.get(),var_rollno.get(),var_gender.get(),var_dob.get(),var_email.get(),var_mobile.get(),var_add.get())
+            if var_dept.get()=='Select Department' or var_course.get()=='Select Course' or var_year.get()=='Select Year' or var_sem.get()=='Select Semister' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_gender.get()=='Select Gender' or var_dob.get()=='' or var_email.get()[-4:]!='.com' or var_email.get()=='' or len(var_mobile.get())!=10 or var_mobile=='' or var_add.get()=='' :
+                print('if: ',var_dept.get(),var_course.get(),var_year.get(),var_sem.get(),var_stdID.get(),var_stdName.get(),var_div.get(),var_rollno.get(),var_gender.get(),var_dob.get(),var_email.get(),var_mobile.get(),var_add.get())
+
+                if var_dept.get()=='Select Department':
+                    dep_lbl=Label(lu_frame,text="Department : ",font=('times new roman',12),fg='red')
+                    dep_lbl.grid(row=0,column=0,padx=2.5,pady=7.5,sticky=W)
+                else:
+                    dep_lbl=Label(lu_frame,text="Department : ",font=('times new roman',12,))
+                    dep_lbl.grid(row=0,column=0,padx=2.5,pady=7.5,sticky=W)
+                    
+                if var_course.get()=='Select Course':
+                    course_lbl=Label(lu_frame,text="Course : ",font=('times new roman',12),fg='red')
+                    course_lbl.grid(row=0,column=2,padx=2.5,pady=7.5,sticky=W)
+                else:
+                    course_lbl=Label(lu_frame,text="Course : ",font=('times new roman',12))
+                    course_lbl.grid(row=0,column=2,padx=2.5,pady=7.5,sticky=W)
+
+
+                if var_year.get()=='Select Year':
+                    year_lbl=Label(lu_frame,text="Year : ",font=('times new roman',12),fg='red')
+                    year_lbl.grid(row=1,column=0,padx=2.5,pady=7.5,sticky=W)
+                else:
+                    year_lbl=Label(lu_frame,text="Year : ",font=('times new roman',12))
+                    year_lbl.grid(row=1,column=0,padx=2.5,pady=7.5,sticky=W)
+
+                if var_sem.get()=='Select Semister':
+                    sem_lbl=Label(lu_frame,text="Semister : ",font=('times new roman',12),fg='red')
+                    sem_lbl.grid(row=1,column=2,padx=2.5,pady=7.5,sticky=W)
+                else:
+                    sem_lbl=Label(lu_frame,text="Semister : ",font=('times new roman',12))
+                    sem_lbl.grid(row=1,column=2,padx=2.5,pady=7.5,sticky=W)
+
+
+                if var_stdName.get()=='':
+                    sutname_lbl=Label(ll_frame,text="Student Name : ",font=('times new roman',12),fg='red')
+                    sutname_lbl.grid(row=0,column=2,padx=2.5,pady=7.5,sticky=E)
+                else:
+                    sutname_lbl=Label(ll_frame,text="Student Name : ",font=('times new roman',12))
+                    sutname_lbl.grid(row=0,column=2,padx=2.5,pady=7.5,sticky=E)
+
+                if var_div.get()=='Select Division':
+                    cd_lbl=Label(ll_frame,text="Class Division : ",font=('times new roman',12),fg='red')
+                    cd_lbl.grid(row=1,column=0,padx=2.5,pady=7.5,sticky=W)
+                else:
+                    cd_lbl=Label(ll_frame,text="Class Division : ",font=('times new roman',12))
+                    cd_lbl.grid(row=1,column=0,padx=2.5,pady=7.5,sticky=W)
+
+                if var_gender.get()=='Select Gender':
+                    gen_lbl=Label(ll_frame,text="Gender : ",font=('times new roman',12),fg='red')
+                    gen_lbl.grid(row=2,column=0,padx=2.5,pady=7.5,sticky=W)
+                else:
+                    gen_lbl=Label(ll_frame,text="Gender : ",font=('times new roman',12))
+                    gen_lbl.grid(row=2,column=0,padx=2.5,pady=7.5,sticky=W)
+
+                if var_dob.get()=='':
+                    DOB_lbl=Label(ll_frame,text="DOB (dd,mm,yy): ",font=('times new roman',12),fg='red')
+                    DOB_lbl.grid(row=2,column=2,padx=2.5,pady=7.5,sticky=E)
+                else:
+                    DOB_lbl=Label(ll_frame,text="DOB (dd,mm,yy): ",font=('times new roman',12))
+                    DOB_lbl.grid(row=2,column=2,padx=2.5,pady=7.5,sticky=E)
+
+                if var_email.get()[-4:]!='.com' or var_email.get()=='':
+                    email_lbl=Label(ll_frame,text="Email: ",font=('times new roman',12),fg='red')
+                    email_lbl.grid(row=3,column=0,padx=2.5,pady=7.5,sticky=W)
+                else:
+                    email_lbl=Label(ll_frame,text="Email: ",font=('times new roman',12))
+                    email_lbl.grid(row=3,column=0,padx=2.5,pady=7.5,sticky=W)
+
+
+                if len(var_mobile.get())!=10 or var_mobile=='':
+                    Mobile_lbl=Label(ll_frame,text="Mobile: ",font=('times new roman',12),fg='red')
+                    Mobile_lbl.grid(row=3,column=2,padx=2.5,pady=7.5,sticky=E)
+                else:
+                    Mobile_lbl=Label(ll_frame,text="Mobile: ",font=('times new roman',12))
+                    Mobile_lbl.grid(row=3,column=2,padx=2.5,pady=7.5,sticky=E)
+                if var_add.get()=='':
+                    add_lbl=Label(ll_frame,text="Address: ",font=('times new roman',12),fg='red')
+                    add_lbl.grid(row=4,column=0,padx=2.5,pady=7.5,sticky=W)
+                else:
+                    add_lbl=Label(ll_frame,text="Address: ",font=('times new roman',12))
+                    add_lbl.grid(row=4,column=0,padx=2.5,pady=7.5,sticky=W)
+    
+
+                messagebox.showerror('Error','Please Enter Highlighted Field Accuratety')
+                
+            else:
+                print('else: ',var_dept.get(),var_course.get(),var_year.get(),var_sem.get(),var_stdID.get(),var_stdName.get(),var_div.get(),var_rollno.get(),var_gender.get(),var_dob.get(),var_email.get(),var_mobile.get(),var_add.get())
+
+                dep_lbl=Label(lu_frame,text="Department : ",font=('times new roman',12,))
+                dep_lbl.grid(row=0,column=0,padx=2.5,pady=7.5,sticky=W)
+                course_lbl=Label(lu_frame,text="Course : ",font=('times new roman',12))
+                course_lbl.grid(row=0,column=2,padx=2.5,pady=7.5,sticky=W)
+                year_lbl=Label(lu_frame,text="Year : ",font=('times new roman',12))
+                year_lbl.grid(row=1,column=0,padx=2.5,pady=7.5,sticky=W)
+                sem_lbl=Label(lu_frame,text="Semister : ",font=('times new roman',12))
+                sem_lbl.grid(row=1,column=2,padx=2.5,pady=7.5,sticky=W)
+                sutname_lbl=Label(ll_frame,text="Student Name : ",font=('times new roman',12))
+                sutname_lbl.grid(row=0,column=2,padx=2.5,pady=7.5,sticky=E)
+                cd_lbl=Label(ll_frame,text="Class Division : ",font=('times new roman',12))
+                cd_lbl.grid(row=1,column=0,padx=2.5,pady=7.5,sticky=W)
+                gen_lbl=Label(ll_frame,text="Gender : ",font=('times new roman',12))
+                gen_lbl.grid(row=2,column=0,padx=2.5,pady=7.5,sticky=W)
+                DOB_lbl=Label(ll_frame,text="DOB (dd,mm,yy): ",font=('times new roman',12))
+                DOB_lbl.grid(row=2,column=2,padx=2.5,pady=7.5,sticky=E)
+                email_lbl=Label(ll_frame,text="Email: ",font=('times new roman',12))
+                email_lbl.grid(row=3,column=0,padx=2.5,pady=7.5,sticky=W)
+                Mobile_lbl=Label(ll_frame,text="Mobile: ",font=('times new roman',12))
+                Mobile_lbl.grid(row=3,column=2,padx=2.5,pady=7.5,sticky=E)
+                add_lbl=Label(ll_frame,text="Address: ",font=('times new roman',12))
+                add_lbl.grid(row=4,column=0,padx=2.5,pady=7.5,sticky=W)
+                save_func()
+            
+                
+
+
+
+        def save_func():
+
+                
+    
+                if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
+                    messagebox.showerror('Error','All Fields are Required!!!')
+                else:
+                    try:
+                        conn=sqlite3.connect('Student_DB.db')
+                        db_cursor=conn.cursor()
+                        db_cursor.execute(' INSERT INTO student VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(   var_dept.get(), 
+                            var_course.get(),
+                            var_year.get(),
+                            var_sem.get(),
+                            var_stdID.get(),
+                            var_stdName.get(),
+                            var_div.get(),
+                            var_rollno.get(),
+                            var_gender.get(),
+                            var_dob.get(),
+                            var_email.get(),
+                            var_mobile.get(),
+                            var_add.get(),
+                            var_tsp.get(),
+                        ))  
+                        conn.commit()
+                        fetch_data()
+                        conn.close()
+
+                        messagebox.showinfo('Saved','Student Details Saved Successfully ')
+                    except Exception as e:
+                        messagebox.showerror('Error',f'Due to {e}')
+            
         #fetch data into table 
         def fetch_data():
             var_searchcb.set('Select')
@@ -132,8 +286,8 @@ def main():
                     table.insert('',END,values=i)
                 conn.commit()
                 conn.close()
-            
-    #cursor to the table
+                
+        #cursor to the table
         def cursor_func(event):
             cursor_focus=table.focus()
             content=table.item(cursor_focus)
@@ -155,6 +309,9 @@ def main():
 
     #update function
         def updata():
+        
+            
+            
             if var_stdID.get()=='' or var_stdName.get()=='' or var_div.get()=='Select Division' or var_rollno.get()=='':
                 messagebox.showerror('Error','All Fields are Required!!!')
             else:
@@ -204,45 +361,34 @@ def main():
                     
     #reset function
         def reset():
+            try:
+                conn=sqlite3.connect('Student_DB.db')
+                db_cursor=conn.cursor()
+                db_cursor.execute('SELECT * FROM student')
+                Data=db_cursor.fetchall()
+                var_stdID.set(str(len(Data)+1))
+                var_rollno.set(str(100+len(Data)+1))
+            except:
+                pass
             var_dept.set('Select Department') 
             var_course.set('Select Course')
             var_year.set('Select Year')
             var_sem.set('Select Semister')
-            var_stdID.set('')
+            var_stdID.set(str(len(Data)+1))
             var_stdName.set('')
             var_div.set('Select Division')
-            var_rollno.set(''),
+            var_rollno.set(str(100+len(Data)+1)),
             var_gender.set('Select Gender ')
             var_dob.set('')
             var_email.set('')
             var_mobile.set('')
             var_add.set('')
-            var_tsp.set('')
+            var_tsp.set('No')
 
         def generate_photo():
             conn=sqlite3.connect('Student_DB.db')
             db_cursor=conn.cursor()
-            db_cursor.execute('SELECT * FROM student ')
-            myresult=db_cursor.fetchall()
-            id=0    
-            for x in myresult:
-                id+=1
-            db_cursor.execute('UPDATE student SET Department=?, Course=?, Year=?, Semister=?, Student_Name=?, Division=?,Rollno=?, Gender=?, DOB=?,Email=?, Mobile=?, Address=?,PhotoSample=? where StudentID=?',(
-                var_dept.get(), 
-                var_course.get(),
-                var_year.get(),
-                var_sem.get(),
-                var_stdName.get(),
-                var_div.get(),
-                var_rollno.get(),
-                var_gender.get(),
-                var_dob.get(),
-                var_email.get(),
-                var_mobile.get(),
-                var_add.get(),
-                var_tsp.get(),
-                var_stdID.get()==id+1,
-                ))
+            db_cursor.execute('UPDATE student SET PhotoSample = "Yes" WHERE StudentID=? ',(var_stdID.get()))
             conn.commit()
             fetch_data()
             # reset()
@@ -289,6 +435,7 @@ def main():
             else:
                 try:
                     generate_photo()
+
                     
                     messagebox.showinfo('Result','Generating Data Sets completed')
                 except Exception as e:
@@ -324,9 +471,9 @@ def main():
                         db_cursor.execute("SELECT * FROM student WHERE Mobile=?",(   var_searchtb.get(), ))
                     else:
                         return
-                    Data=db_cursor.fetchmany()
+                    Data=db_cursor.fetchall()
                     # #print(var_se)
-                    # #print(Data)
+                    # print(Data)
                     if len(Data)!=0:
                         table.delete(* table.get_children())
                         for i in Data:
@@ -366,7 +513,7 @@ def main():
         course_lbl.grid(row=0,column=2,padx=2.5,pady=7.5,sticky=W)
 
         course_cb=ttk.Combobox(lu_frame,font=('times new roman',12),state='readonly',width=17,textvariable=var_course)
-        course_cb['values']=('Select Course ','FE','SE','TE','BE')
+        course_cb['values']=('Select Course','FE','SE','TE','BE')
         course_cb.current(0)
         course_cb.grid(row=0,column=3,padx=2.5,pady=7.5,sticky=W)
 
@@ -467,7 +614,7 @@ def main():
         nps_rad=Radiobutton(ll_frame,text='No Photo Sample',value='No',variable=var_tsp)
         nps_rad.grid(row=4,column=3)
         
-
+        
         #button fram
         lbut_frame=Frame(left_frame,borderwidth=2,relief=SUNKEN)
         lbut_frame.place(relx=0.01,rely=0.8,width=590,height=40)
@@ -476,28 +623,28 @@ def main():
         llbut_frame.place(relx=0.01,rely=0.89,width=590,height=40)
         
         # save button
-        save_but=Button(lbut_frame,text='Save',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=14,borderwidth=5,command=save_func)
-        save_but.grid(row=0,column=0)
+        save_but=Button(lbut_frame,text='Save',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=14,borderwidth=5,command=validate)
+        save_but.place(relx=0.0,rely=0.0)
         
         # update button
-        Update_but=Button(lbut_frame,text='Update',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=15,borderwidth=5,command=updata)
-        Update_but.grid(row=0,column=1)
+        Update_but=Button(lbut_frame,text='Update',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=14,borderwidth=5,command=updata)
+        Update_but.place(relx=0.25,rely=0.0)
         
         # Delete button
-        Delete_but=Button(lbut_frame,text='Delete',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=15,borderwidth=5,command=delta)
-        Delete_but.grid(row=0,column=2)
+        Delete_but=Button(lbut_frame,text='Delete',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=14,borderwidth=5,command=delta)
+        Delete_but.place(relx=0.5,rely=0.0)
         
         # Reset button
         Reset_but=Button(lbut_frame,text='Reset',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=14,borderwidth=5,command=reset)
-        Reset_but.grid(row=0,column=3)
+        Reset_but.place(relx=0.75,rely=0.0)
 
         #add photo button
-        Aps_but=Button(llbut_frame,text='Add Photo Sample',font=('times new roman',12),fg='white',bg='#9f1c33',bd=6,relief=RAISED,cursor='hand2',width=31,borderwidth=5,command=add_photo)
-        Aps_but.grid(row=0,column=0)
+        Aps_but=Button(llbut_frame,text='Add Photo Sample',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=32,borderwidth=5,command=add_photo)
+        Aps_but.place(relx=0.0,rely=0.0)
         
         #update photo button
-        Ups_but=Button(llbut_frame,text='Update Photo Sample',font=('times new roman',12),fg='white',bg='#9f1c33',bd=7,relief=RAISED,cursor='hand2',width=31,borderwidth=5,command=update_photo)
-        Ups_but.grid(row=0,column=1)
+        Ups_but=Button(llbut_frame,text='Update Photo Sample',font=('times new roman',12),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=32,borderwidth=5,command=update_photo)
+        Ups_but.place(relx=0.5,rely=0.0)
 
         #right frame
         right_frame=LabelFrame(mainframe,text='Student Details',bd=3,fg='#9f1c33',font=('times new roman',15),relief=RAISED,borderwidth=3)
@@ -580,6 +727,7 @@ def main():
         fetch_data()
 
     def face_func(root=root):
+
         ask=messagebox.askyesno('Face Detector','Click "Yes" if want to create new atendance sheet.\n Click "No" if want to select existing Sheet',parent=root)
         if ask==True:
             try:
@@ -676,6 +824,7 @@ def main():
             home()
             
     def atten_func(root=root):
+        
         #variables
         var_Adept=StringVar()
         var_AstdID=StringVar()
@@ -749,10 +898,11 @@ def main():
                 var_Atime.set(''),
                 var_Adate.set(''),
                 var_Astatus.set('')
-                
-            #nav tag
-            nav_text=Label(root,text='Attendance',font=('times new roman',15,'bold'),bg='#636466',fg='white',width=15)
-            nav_text.place(relx=0.01,rely=0.005)
+            nav=Frame( root,bg='#636466',width=1100,height=35)
+            nav.place(relx=0,rely=0)
+            nav_text=Label(nav,text='> Attendance',font=('times new roman',14),bg='#636466',fg='white')
+            nav_text.place(relx=0.01,rely=0.05)
+            
 
             #main frame
             mainframe=Frame(root,bd=4,bg='#636466',relief=SUNKEN,borderwidth=3)
@@ -971,17 +1121,19 @@ def main():
 
     def nav(root=root):
         #navigation
-        nav=Label( root,bg='#636466',width=1530,height=2)
+        # nav=Frame( root,bg='#636466',width=1530,height=2)
+        # nav.place(relx=0,rely=0)
+        nav=Frame( root,bg='#636466',width=1366,height=35)
         nav.place(relx=0,rely=0)
         def time():
             str=strftime('%H:%M:%S %p')
             time_lbl.config(text=str)
             time_lbl.after(1000,time)
 
-        time_lbl=Label(root,font=('times new roman',14),fg='White',bg='#636466',width=10)
-        time_lbl.place(relx=0.83,rely=0.01)
+        time_lbl=Label(nav,font=('times new roman',13),fg='White',bg='#636466',width=12,)
+        time_lbl.place(relx=0.83,rely=0.15)
         time()
-        exit_but=Button( root,text='Exit',font=('times new roman',14),fg='white',bg='#636466',relief=RAISED,cursor='hand2',width=10,command=exit)
+        exit_but=Button( nav,text='Exit',font=('times new roman',13),fg='white',bg='#636466',relief=RAISED,cursor='hand2',width=10,command=exit)
         exit_but.place(relx=0.91,rely=0.0)
         #logo
         
@@ -991,37 +1143,41 @@ def main():
         ambi_name=Label( root,text='Ambi, Pune',font=('times new roman',20,'bold'),bg='white')
         ambi_name.place(relx=0.47,rely=0.14,relwidth=0.1,relheight=0.03)
         #subtitle
-        subtitle=Label( root,text='Face Recognition System',font=('times new roman',25,'bold'),bg='white')
-        subtitle.place(relx=0.39,rely=0.18)
+        subtitle=Label( root,text='F . R . A . M . S',font=('times new roman',23,'bold'),bg='white')
+        subtitle.place(relx=0.439,rely=0.17)
+        subtitle=Label( root,text='Face Recognition Anttendance Management System',font=('times new roman',12,'bold'),bg='white')
+        subtitle.place(relx=0.38,rely=0.215)
         # #red line
-        redline=Frame( root,bg='#9f1c33',width=1530,height=40)
-        redline.place(relx=0,rely=0.25)
+        redline=Frame( root,bg='#9f1c33',width=1530,height=4)
+        redline.place(relx=0,rely=0.248)
         #home
         home(root)
-        home_but=Button( redline,text='Home',command=home,font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2,bd=3)
-        home_but.grid(row=0,column=0,padx=55)
+        home_but=Button( redline,text='Home',command=home,font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2,bd=3,highlightcolor='#636466',highlightthickness=1)
+        home_but.grid(row=0,column=0,padx=40)
 
-        sd_but=Button( redline,text='Student Details',command=student_func,font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2,bd=3)
+        sd_but=Button( redline,text='Student Details',command=student_func,font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=12,borderwidth=2,bd=3,highlightcolor="#636466",highlightthickness=1)
         sd_but.grid(row=0,column=1,padx=55)
         # #face Recognizer
-        faced_but=Button( redline,text='Face Recognizer',font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2,command=face_func,bd=3)
-        faced_but.grid(row=0,column=3,padx=55)
+        faced_but=Button( redline,text='Face Recognizer',font=('times new roman',14),fg='white',bg='#9f1c33',relief=RAISED,cursor='hand2',width=12,borderwidth=2,command=face_func,bd=3,highlightcolor="#636466",highlightthickness=1)
+        faced_but.grid(row=0,column=2,padx=55)
         # #attendance
-        atten_but=Button( redline,text='Attendance',font=('times new roman',14),fg='white',bg='#9f1c33',bd=3,relief=RAISED,cursor='hand2',width=10,borderwidth=2,command=atten_func)
-        atten_but.grid(row=0,column=5,padx=55)
+        atten_but=Button( redline,text='Attendance',font=('times new roman',14),fg='white',bg='#9f1c33',bd=3,relief=RAISED,cursor='hand2',width=10,borderwidth=2,command=atten_func,highlightcolor="#636466",highlightthickness=1)
+        atten_but.grid(row=0,column=3,padx=55)
         # #train
-        train_but=Button( redline,text='Train Data',font=('times new roman',14),fg='white',bg='#9f1c33',bd=3,relief=RAISED,cursor='hand2',width=10,borderwidth=2,command=train_func)
-        train_but.grid(row=0,column=7,padx=55)
+        train_but=Button( redline,text='Train Data',font=('times new roman',14),fg='white',bg='#9f1c33',bd=3,relief=RAISED,cursor='hand2',width=10,borderwidth=2,command=train_func,highlightcolor="#636466",highlightthickness=1)
+        train_but.grid(row=0,column=4,padx=55)
         # #Photos
-        photo_but=Button( redline,text='Photos',font=('times new roman',14),command=photo_func,fg='white',bd=3,bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2)
-        photo_but.grid(row=0,column=9,padx=55)
+        photo_but=Button( redline,text='Photos',font=('times new roman',14),command=photo_func,fg='white',bd=3,bg='#9f1c33',relief=RAISED,cursor='hand2',width=10,borderwidth=2,highlightcolor="#636466",highlightthickness=1)
+        photo_but.grid(row=0,column=5,padx=55)
         
     
 
-
+    def disable_close():
+        pass
 
     
     nav(root)
+    root.protocol('WM_DELETE_WINDOW',disable_close)
     root.mainloop()
 
 
@@ -1048,6 +1204,10 @@ def register_func():
             except Exception as e:
                 messagebox.showerror('Alert',f'Username {var_user.get()} is already registered')
                 login_func()
+    index_frame=Canvas(auth,highlightthickness=0,bg='#636466')
+    index_frame.place(relx=0.0,rely=0.0 ,width=300,height=20)
+    index_text=Label(index_frame,text='Register',font=('times new roman',10),bg='#636466',fg='white')
+    index_text.place(relx=0.0,rely=0.0)
     lu_frame=Canvas(auth,highlightthickness=0,bg='white')
     lu_frame.place(relx=0.01,rely=0.4 ,width=289,height=250)
     
@@ -1116,6 +1276,10 @@ def forgot_func():
                 messagebox.showerror('Alert!!!',f'Username {var_user.get()} is not registered')
                 register_func()
                 # print(e)
+    index_frame=Canvas(auth,highlightthickness=0,bg='#636466')
+    index_frame.place(relx=0.0,rely=0.0 ,width=300,height=20)
+    index_text=Label(index_frame,text='Forgot Password',font=('times new roman',10),bg='#636466',fg='white')
+    index_text.place(relx=0.0,rely=0.0)
     l_frame=Canvas(auth,highlightthickness=0,bg='white')
     l_frame.place(relx=0.01,rely=0.4 ,width=289,height=250)
     
@@ -1182,8 +1346,10 @@ def login_func():
                 
                 #print(e)
     
-
-        
+    index_frame=Canvas(auth,highlightthickness=0,bg='#636466')
+    index_frame.place(relx=0.0,rely=0.0 ,width=300,height=20)
+    index_text=Label(index_frame,text='Login',font=('times new roman',10),bg='#636466',fg='white')
+    index_text.place(relx=0.0,rely=0.0)
     ll_frame=Canvas(auth,highlightthickness=0,bg='white')
     ll_frame.place(relx=0.01,rely=0.4 ,width=289,height=220)
     
@@ -1209,9 +1375,7 @@ def login_func():
 
     forgotPass_but=Button(ll_frame,text='Forgot Password',font=('times new roman',10),bg='white',fg='#9E1C32',borderwidth=0,cursor='hand2',command=forgot_func,highlightthickness=0)
     forgotPass_but.place(relx=0.55,rely=0.57)
-    # update button
-    # register_but=Button(ll_frame,text='Register',font=('times new roman',10),fg='white',bg='#9E1C32',relief=RAISED,cursor='hand2',width=5,borderwidth=3,command=register)
-    # register_but.place(relx=0.55,rely=0.65)
+    
 
 
 
@@ -1225,13 +1389,16 @@ if __name__=='__main__':
     auth.title('Authentication')
     auth.configure(bg='white')
     auth.resizable(False,False)
+    
     logo=ImageTk.PhotoImage(Image.open("tasveer/dyicon.jpeg").resize((70,70)))
     logo_lable=Label( auth,image=logo,border=0,borderwidth=0,cursor='hand2')
-    logo_lable.place(relx=0.38,rely=0.03)
+    logo_lable.place(relx=0.38,rely=0.07)
     logo_lable.bind('<Button-1>', lambda x: webbrowser.open_new('https://dypatiluniversitypune.edu.in/school-of-engineering-ambi.php'))
     login_lbl=Label(auth,text="Welcome to F.R.A.M.S.",font=('times new roman',18),bg='white',fg='#9f1c33')
-    login_lbl.place(relx=0.12,rely=0.26)
+    login_lbl.place(relx=0.12,rely=0.3)
+    
     login_func()
+    
 
     
     
