@@ -16,7 +16,6 @@ from tkinter.messagebox import showinfo
 import platform
 from tkcalendar import DateEntry
 z=1
-
 def main():
     root=Toplevel(auth)
     screen_width = root.winfo_screenwidth()
